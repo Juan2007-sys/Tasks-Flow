@@ -1,0 +1,540 @@
+<div class="min-h-screen bg-slate-50 flex flex-col font-sans">
+  
+  <!-- Navbar Global -->
+  <app-navbar />
+
+  <!-- Contenedor Principal -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in-up">
+    
+    <!-- Loading del Proyecto -->
+    <div *ngIf="loadingProject()" class="glass-panel p-8 rounded-3xl border border-slate-200/80 animate-pulse space-y-4">
+      <div class="h-4 bg-slate-200 rounded w-1/4"></div>
+      <div class="h-8 bg-slate-200 rounded w-1/2"></div>
+      <div class="h-4 bg-slate-100 rounded w-3/4"></div>
+    </div>
+
+    <!-- Header del Proyecto y Tablero -->
+    <div *ngIf="!loadingProject() && project()" class="space-y-6">
+      
+      <!-- Barra superior de Navegación y Acciones -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        
+        <div class="space-y-1.5">
+          <a routerLink="/projects" class="inline-flex items-center gap-1.5 text-xs font-bold text-violet-600 hover:text-violet-800 transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Volver a Proyectos
+          </a>
+
+          <div class="flex items-center gap-3">
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              {{ project()?.name }}
+            </h1>
+            <span
+              class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider"
+              [ngClass]="{
+                'bg-emerald-50 text-emerald-700 border border-emerald-200': project()?.status === 'active',
+                'bg-slate-100 text-slate-600 border border-slate-200': project()?.status === 'completed'
+              }"
+            >
+              {{ project()?.status === 'active' ? '● Activo' : '✓ Completado' }}
+            </span>
+          </div>
+
+          <p *ngIf="project()?.description" class="text-xs sm:text-sm text-slate-500 max-w-2xl">
+            {{ project()?.description }}
+          </p>
+        </div>
+
+        <!-- Controles de Vista y Botón Nueva Tarea -->
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+          
+          <!-- Selector de Vista (Kanban / Lista) -->
+          <div class="flex items-center p-1 bg-slate-200/80 rounded-xl">
+            <button
+              (click)="viewMode = 'kanban'"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200"
+              [ngClass]="viewMode === 'kanban' ? 'bg-white text-violet-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+              </svg>
+              Kanban
+            </button>
+            <button
+              (click)="viewMode = 'list'"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200"
+              [ngClass]="viewMode === 'list' ? 'bg-white text-violet-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              Lista
+            </button>
+          </div>
+
+          <button
+            (click)="openCreateModal('pendiente')"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 text-white font-bold text-xs shadow-md shadow-violet-500/25 hover:bg-violet-700 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shrink-0"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+            </svg>
+            Nueva Tarea
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Barra de Progreso del Proyecto -->
+      <div class="glass-panel p-4 rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4 w-full sm:w-auto">
+          <div class="text-left">
+            <p class="text-xs font-bold text-slate-800">Progreso General</p>
+            <p class="text-[11px] text-slate-400">{{ completedTasks.length }} de {{ tasksService.tasks().length }} tareas completadas</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-80">
+          <div class="flex-1 bg-slate-100 h-2.5 rounded-full overflow-hidden">
+            <div
+              class="bg-gradient-to-r from-violet-600 via-indigo-600 to-emerald-500 h-full rounded-full transition-all duration-500"
+              [style.width.%]="progressPercentage"
+            ></div>
+          </div>
+          <span class="text-xs font-extrabold text-slate-800 shrink-0 w-10 text-right">{{ progressPercentage }}%</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Spinner de Tareas -->
+    <div *ngIf="tasksService.loading()" class="py-20 text-center">
+      <svg class="animate-spin h-8 w-8 text-violet-600 mx-auto" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+      </svg>
+      <p class="text-slate-400 text-xs mt-3 font-medium">Cargando tablero...</p>
+    </div>
+
+    <!-- 1. VISTA TABLERO KANBAN (Con Native HTML5 Drag & Drop) -->
+    <div *ngIf="!tasksService.loading() && viewMode === 'kanban'" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+      
+      <!-- Columna 1: PENDIENTE -->
+      <div class="glass-panel p-4 rounded-3xl border border-slate-200/80 space-y-4 bg-slate-100/50">
+        <div class="flex items-center justify-between px-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+            <h3 class="font-extrabold text-sm text-slate-800 uppercase tracking-wider">Por Hacer</h3>
+            <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">{{ pendingTasks.length }}</span>
+          </div>
+
+          <button
+            (click)="openCreateModal('pendiente')"
+            title="Añadir tarea a Por Hacer"
+            class="p-1 hover:bg-slate-200 rounded-lg text-slate-500 hover:text-slate-800 transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Drop Area Pendientes -->
+        <div
+          (dragover)="onDragOver('pendiente', $event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop('pendiente', $event)"
+          class="min-h-[200px] space-y-3 rounded-2xl p-2 transition-all duration-200"
+          [ngClass]="{
+            'ring-2 ring-amber-400 bg-amber-50/60': dragOverColumn() === 'pendiente'
+          }"
+        >
+          <div
+            *ngFor="let task of pendingTasks"
+            draggable="true"
+            (dragstart)="onDragStart(task, $event)"
+            class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing space-y-3 group hover:scale-[1.01]"
+            [class.opacity-40]="draggedTask()?._id === task._id"
+          >
+            <div class="flex items-start justify-between gap-2">
+              <h4 class="text-sm font-bold text-slate-900 leading-snug line-clamp-2">{{ task.title }}</h4>
+              <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button (click)="openEditModal(task)" class="p-1 text-slate-400 hover:text-slate-700">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                </button>
+                <button (click)="openDeleteModal(task)" class="p-1 text-slate-400 hover:text-rose-600">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
+              </div>
+            </div>
+
+            <p *ngIf="task.description" class="text-xs text-slate-500 line-clamp-2">{{ task.description }}</p>
+
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+              <span class="text-slate-400">{{ task.createdAt | date:'d MMM' }}</span>
+              <button
+                (click)="cambiarEstadoRapido(task, 'en_progreso')"
+                class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold transition-colors cursor-pointer"
+              >
+                Iniciar →
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="pendingTasks.length === 0" class="py-8 text-center text-xs text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl">
+            Sin tareas pendientes
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna 2: EN PROGRESO -->
+      <div class="glass-panel p-4 rounded-3xl border border-slate-200/80 space-y-4 bg-blue-50/30">
+        <div class="flex items-center justify-between px-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+            <h3 class="font-extrabold text-sm text-slate-800 uppercase tracking-wider">En Progreso</h3>
+            <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-bold">{{ inProgressTasks.length }}</span>
+          </div>
+
+          <button
+            (click)="openCreateModal('en_progreso')"
+            title="Añadir tarea a En Progreso"
+            class="p-1 hover:bg-blue-100 rounded-lg text-slate-500 hover:text-slate-800 transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Drop Area En Progreso -->
+        <div
+          (dragover)="onDragOver('en_progreso', $event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop('en_progreso', $event)"
+          class="min-h-[200px] space-y-3 rounded-2xl p-2 transition-all duration-200"
+          [ngClass]="{
+            'ring-2 ring-blue-400 bg-blue-50/60': dragOverColumn() === 'en_progreso'
+          }"
+        >
+          <div
+            *ngFor="let task of inProgressTasks"
+            draggable="true"
+            (dragstart)="onDragStart(task, $event)"
+            class="p-4 rounded-2xl bg-white border border-blue-200/80 shadow-sm hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing space-y-3 group hover:scale-[1.01]"
+            [class.opacity-40]="draggedTask()?._id === task._id"
+          >
+            <div class="flex items-start justify-between gap-2">
+              <h4 class="text-sm font-bold text-slate-900 leading-snug line-clamp-2">{{ task.title }}</h4>
+              <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button (click)="openEditModal(task)" class="p-1 text-slate-400 hover:text-slate-700">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                </button>
+                <button (click)="openDeleteModal(task)" class="p-1 text-slate-400 hover:text-rose-600">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
+              </div>
+            </div>
+
+            <p *ngIf="task.description" class="text-xs text-slate-500 line-clamp-2">{{ task.description }}</p>
+
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+              <button
+                (click)="cambiarEstadoRapido(task, 'pendiente')"
+                class="text-slate-400 hover:text-slate-700 font-medium cursor-pointer"
+              >
+                ← Regresar
+              </button>
+              <button
+                (click)="cambiarEstadoRapido(task, 'completada')"
+                class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold transition-colors cursor-pointer"
+              >
+                Completar ✓
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="inProgressTasks.length === 0" class="py-8 text-center text-xs text-slate-400 border-2 border-dashed border-blue-200 rounded-2xl">
+            Sin tareas en progreso
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna 3: COMPLETADA -->
+      <div class="glass-panel p-4 rounded-3xl border border-slate-200/80 space-y-4 bg-emerald-50/30">
+        <div class="flex items-center justify-between px-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <h3 class="font-extrabold text-sm text-slate-800 uppercase tracking-wider">Completadas</h3>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">{{ completedTasks.length }}</span>
+          </div>
+
+          <button
+            (click)="openCreateModal('completada')"
+            title="Añadir tarea a Completadas"
+            class="p-1 hover:bg-emerald-100 rounded-lg text-slate-500 hover:text-slate-800 transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Drop Area Completadas -->
+        <div
+          (dragover)="onDragOver('completada', $event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop('completada', $event)"
+          class="min-h-[200px] space-y-3 rounded-2xl p-2 transition-all duration-200"
+          [ngClass]="{
+            'ring-2 ring-emerald-400 bg-emerald-50/60': dragOverColumn() === 'completada'
+          }"
+        >
+          <div
+            *ngFor="let task of completedTasks"
+            draggable="true"
+            (dragstart)="onDragStart(task, $event)"
+            class="p-4 rounded-2xl bg-white border border-emerald-200/80 shadow-sm hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing space-y-3 group opacity-90 hover:opacity-100 hover:scale-[1.01]"
+            [class.opacity-40]="draggedTask()?._id === task._id"
+          >
+            <div class="flex items-start justify-between gap-2">
+              <h4 class="text-sm font-bold text-slate-900 leading-snug line-through text-slate-500">{{ task.title }}</h4>
+              <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button (click)="openEditModal(task)" class="p-1 text-slate-400 hover:text-slate-700">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                </button>
+                <button (click)="openDeleteModal(task)" class="p-1 text-slate-400 hover:text-rose-600">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
+              </div>
+            </div>
+
+            <p *ngIf="task.description" class="text-xs text-slate-400 line-clamp-2">{{ task.description }}</p>
+
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+              <span class="text-emerald-600 font-bold flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                Finalizada
+              </span>
+              <button
+                (click)="cambiarEstadoRapido(task, 'en_progreso')"
+                class="text-slate-400 hover:text-slate-700 font-medium cursor-pointer"
+              >
+                Reabrir ↺
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="completedTasks.length === 0" class="py-8 text-center text-xs text-slate-400 border-2 border-dashed border-emerald-200 rounded-2xl">
+            Sin tareas completadas
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 2. VISTA ALTERNATIVA: LISTA -->
+    <div *ngIf="!tasksService.loading() && viewMode === 'list'" class="glass-panel p-6 rounded-3xl border border-slate-200/80 space-y-4">
+      <div *ngIf="tasksService.tasks().length === 0" class="py-12 text-center text-slate-400 text-xs">
+        No hay tareas creadas para este proyecto.
+      </div>
+
+      <div *ngFor="let task of tasksService.tasks()" class="p-4 rounded-2xl bg-white border border-slate-200/80 flex items-center justify-between gap-4 hover:border-violet-300 transition-colors">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span
+              class="w-2 h-2 rounded-full"
+              [ngClass]="{
+                'bg-amber-500': task.status === 'pendiente',
+                'bg-blue-500': task.status === 'en_progreso',
+                'bg-emerald-500': task.status === 'completada'
+              }"
+            ></span>
+            <h4 class="text-sm font-bold text-slate-900" [ngClass]="{ 'line-through text-slate-400': task.status === 'completada' }">{{ task.title }}</h4>
+          </div>
+          <p *ngIf="task.description" class="text-xs text-slate-500">{{ task.description }}</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <select
+            [ngModel]="task.status"
+            (ngModelChange)="cambiarEstadoRapido(task, $event)"
+            class="px-2.5 py-1 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50"
+          >
+            <option value="pendiente">Pendiente</option>
+            <option value="en_progreso">En Progreso</option>
+            <option value="completada">Completada</option>
+          </select>
+
+          <button (click)="openEditModal(task)" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-700">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+          </button>
+
+          <button (click)="openDeleteModal(task)" class="p-1.5 hover:bg-rose-50 rounded-lg text-slate-400 hover:text-rose-600">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal: Crear Tarea -->
+  <div *ngIf="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in-up">
+    <div class="glass-modal w-full max-w-md p-6 sm:p-8 rounded-3xl space-y-6 animate-spring-pop border border-slate-200/80">
+      
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl font-extrabold text-slate-900">Nueva Tarea</h3>
+        <button (click)="closeCreateModal()" class="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Título de la Tarea *</label>
+          <input
+            type="text"
+            [(ngModel)]="newTaskTitle"
+            placeholder="Ej: Diseñar componentes en Figma"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-sm"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Descripción (Opcional)</label>
+          <textarea
+            [(ngModel)]="newTaskDesc"
+            rows="3"
+            placeholder="Detalles sobre lo que se debe hacer..."
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-sm resize-none"
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Estado Inicial</label>
+          <select
+            [(ngModel)]="newTaskStatus"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-sm bg-white"
+          >
+            <option value="pendiente">Por Hacer (Pendiente)</option>
+            <option value="en_progreso">En Progreso</option>
+            <option value="completada">Completada</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button (click)="closeCreateModal()" type="button" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold">
+          Cancelar
+        </button>
+        <button
+          (click)="crearTarea()"
+          [disabled]="saving"
+          type="button"
+          class="px-5 py-2.5 rounded-xl bg-violet-600 text-white text-xs font-bold shadow-md shadow-violet-500/25 hover:bg-violet-700 disabled:opacity-50"
+        >
+          {{ saving ? 'Creando...' : 'Crear Tarea' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Editar Tarea -->
+  <div *ngIf="showEditModal && editingTask" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in-up">
+    <div class="glass-modal w-full max-w-md p-6 sm:p-8 rounded-3xl space-y-6 animate-spring-pop border border-slate-200/80">
+      
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl font-extrabold text-slate-900">Editar Tarea</h3>
+        <button (click)="closeEditModal()" class="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Título *</label>
+          <input
+            type="text"
+            [(ngModel)]="editingTask.title"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-sm"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Descripción</label>
+          <textarea
+            [(ngModel)]="editingTask.description"
+            rows="3"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-sm resize-none"
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Estado</label>
+          <select
+            [(ngModel)]="editingTask.status"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-sm bg-white"
+          >
+            <option value="pendiente">Por Hacer (Pendiente)</option>
+            <option value="en_progreso">En Progreso</option>
+            <option value="completada">Completada</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button (click)="closeEditModal()" type="button" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold">
+          Cancelar
+        </button>
+        <button
+          (click)="guardarEdicion()"
+          [disabled]="saving"
+          type="button"
+          class="px-5 py-2.5 rounded-xl bg-violet-600 text-white text-xs font-bold shadow-md shadow-violet-500/25 hover:bg-violet-700 disabled:opacity-50"
+        >
+          {{ saving ? 'Guardando...' : 'Guardar Cambios' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Confirmar Eliminación -->
+  <div *ngIf="showDeleteModal && deletingTask" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in-up">
+    <div class="glass-modal w-full max-w-sm p-6 rounded-3xl space-y-5 animate-spring-pop border border-rose-200 text-center">
+      
+      <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+        <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-bold text-slate-900">¿Eliminar esta tarea?</h3>
+        <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+          "{{ deletingTask.title }}" será eliminada permanentemente del proyecto.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-center gap-3 pt-2">
+        <button (click)="closeDeleteModal()" type="button" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold">
+          Cancelar
+        </button>
+        <button
+          (click)="confirmarEliminacion()"
+          [disabled]="saving"
+          type="button"
+          class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-500/25 disabled:opacity-50"
+        >
+          {{ saving ? 'Eliminando...' : 'Sí, Eliminar' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

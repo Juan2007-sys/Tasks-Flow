@@ -4,18 +4,22 @@ import { AuthService } from './auth.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/user.schema';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './jwt.estrategia';
+import { JwtStrategy } from './jwt.strategy';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    JwtModule.register({
-      secret: 'taskflow_secret_key',
-      signOptions: { expiresIn: '24h' },
+    JwtModule.registerAsync({
+      useFactory: () => ({
+        secret: process.env.JWT_SECRET || 'taskflow_secret_key',
+        signOptions: { expiresIn: (process.env.JWT_EXPIRATION || '24h') as any },
+      }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService , JwtStrategy],
-  exports: [JwtModule],
+  providers: [AuthService, JwtStrategy],
+  exports: [JwtModule, PassportModule, JwtStrategy],
 })
-export class AuthModule {}
+export class AuthModule {}

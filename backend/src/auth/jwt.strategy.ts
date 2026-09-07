@@ -7,7 +7,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: 'taskflow_secret_key',
+      secretOrKey: process.env.JWT_SECRET || 'taskflow_secret_key',
     });
   }
 
@@ -15,3 +15,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return { id: payload.id, role: payload.role };
   }
 }
+

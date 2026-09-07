@@ -1,0 +1,207 @@
+<div class="min-h-screen flex bg-slate-950 font-sans selection:bg-violet-500 selection:text-white">
+
+  <!-- Panel izquierdo decorativo (Branding) -->
+  <div class="hidden lg:flex w-1/2 bg-gradient-to-br from-violet-900 via-indigo-900 to-slate-950 flex-col justify-between p-12 relative overflow-hidden border-r border-slate-800/60">
+    
+    <!-- Luces decorativas de fondo -->
+    <div class="absolute -top-24 -right-24 w-96 h-96 bg-violet-600/30 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
+    <div class="absolute -bottom-32 -left-24 w-[480px] h-[480px] bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- Header Logo -->
+    <div class="relative z-10">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-500 to-indigo-600 p-0.5 shadow-lg shadow-indigo-500/30 flex items-center justify-center">
+          <div class="w-full h-full bg-slate-950/40 rounded-[14px] flex items-center justify-center backdrop-blur-sm">
+            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+        </div>
+        <div>
+          <h1 class="text-white text-2xl font-black tracking-tight flex items-center gap-2">
+            TaskFlow
+            <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 bg-violet-500/20 text-violet-300 rounded-full border border-violet-400/30">Pro</span>
+          </h1>
+          <p class="text-violet-200/70 text-xs">Gestión ágil de proyectos y tareas</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de beneficios -->
+    <div class="relative z-10 space-y-6">
+      <div class="p-6 rounded-3xl bg-white/[0.05] border border-white/10 backdrop-blur-xl shadow-2xl space-y-4">
+        <p class="text-white text-xl font-bold">¿Por qué usar TaskFlow?</p>
+        
+        <div class="space-y-3.5">
+          <div class="flex items-center gap-3">
+            <div class="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p class="text-slate-300 text-sm font-medium">Tableros Kanban interactivos con Drag & Drop</p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p class="text-slate-300 text-sm font-medium">Seguridad robusta con cifrado y JWT Tokens</p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p class="text-slate-300 text-sm font-medium">Métricas dinámicas y cálculo de avance en tiempo real</p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p class="text-slate-300 text-sm font-medium">API REST modular y de alto rendimiento</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer info -->
+    <p class="text-slate-400 text-xs relative z-10 flex items-center gap-1.5">
+      <span>TaskFlow © 2026 — Juan Quevedo</span>
+    </p>
+  </div>
+
+  <!-- Panel derecho (Formulario de Registro) -->
+  <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-slate-900">
+    <div class="w-full max-w-md space-y-8 animate-fade-in-up">
+
+      <!-- Logo móvil -->
+      <div class="flex lg:hidden items-center gap-3 justify-center mb-6">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg">
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <h1 class="text-2xl font-black text-white">TaskFlow</h1>
+      </div>
+
+      <!-- Header del formulario -->
+      <div>
+        <h2 class="text-3xl font-extrabold text-white tracking-tight">Crear Cuenta</h2>
+        <p class="text-slate-400 mt-2 text-sm">Empieza a organizar tus proyectos hoy mismo.</p>
+      </div>
+
+      <!-- Banner de Error -->
+      <div *ngIf="error" class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm flex items-center gap-3 animate-spring-pop">
+        <svg class="w-5 h-5 shrink-0 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{{ error }}</span>
+      </div>
+
+      <!-- Formulario -->
+      <form (ngSubmit)="register()" class="space-y-5">
+        
+        <!-- Campo Nombre -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">Nombre Completo</label>
+          <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-violet-400 transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              [(ngModel)]="name"
+              name="name"
+              placeholder="Juan Quevedo"
+              required
+              class="w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700/80 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all duration-200 text-sm shadow-inner"
+            />
+          </div>
+        </div>
+
+        <!-- Campo Email -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">Correo Electrónico</label>
+          <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-violet-400 transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+              </svg>
+            </div>
+            <input
+              type="email"
+              [(ngModel)]="email"
+              name="email"
+              placeholder="juan@ejemplo.com"
+              required
+              class="w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700/80 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all duration-200 text-sm shadow-inner"
+            />
+          </div>
+        </div>
+
+        <!-- Campo Contraseña -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">Contraseña</label>
+          <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-violet-400 transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <input
+              type="password"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="Mínimo 6 caracteres"
+              required
+              class="w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700/80 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all duration-200 text-sm shadow-inner"
+            />
+          </div>
+        </div>
+
+        <!-- Botón Submit -->
+        <button
+          type="submit"
+          [disabled]="loading"
+          class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 text-white font-bold text-sm shadow-lg shadow-violet-600/30 hover:shadow-violet-600/50 hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span *ngIf="!loading">Registrarme Gratis</span>
+          <svg *ngIf="!loading" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+
+          <span *ngIf="loading" class="flex items-center gap-2">
+            <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+            Creando cuenta...
+          </span>
+        </button>
+
+      </form>
+
+      <!-- Enlace a Login -->
+      <div class="pt-4 border-t border-slate-800 text-center">
+        <p class="text-slate-400 text-sm">
+          ¿Ya tienes una cuenta?
+          <a routerLink="/login" class="text-violet-400 font-bold hover:text-violet-300 hover:underline transition-colors ml-1">
+            Iniciar sesión
+          </a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+</div>

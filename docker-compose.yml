@@ -1,0 +1,87 @@
+services:
+  # ----------------------------------------------------
+  # 1. MongoDB Database
+  # ----------------------------------------------------
+  mongo:
+    image: mongo:7.0
+    container_name: taskflow-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=taskflow
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - taskflow-network
+
+  # ----------------------------------------------------
+  # 2. NestJS Backend API
+  # ----------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: taskflow-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongo:27017/taskflow
+      - JWT_SECRET=superSecretJwtKeyForDevAndDemoEnvironment123!
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - taskflow-network
+
+  # ----------------------------------------------------
+  # 3. Angular Frontend (Nginx SPA)
+  # ----------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: taskflow-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - taskflow-network
+
+  # ----------------------------------------------------
+  # 4. Mongo Express (Interactive DB Admin GUI)
+  # ----------------------------------------------------
+  mongo-express:
+    image: mongo-express:latest
+    container_name: taskflow-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_BASICAUTH=false
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - taskflow-network
+
+volumes:
+  mongo_data:
+    driver: local
+
+networks:
+  taskflow-network:
+    driver: bridge

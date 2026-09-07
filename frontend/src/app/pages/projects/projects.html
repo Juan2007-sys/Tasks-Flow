@@ -1,0 +1,339 @@
+<div class="min-h-screen bg-slate-50 flex flex-col font-sans">
+  
+  <!-- Navbar Global -->
+  <app-navbar />
+
+  <!-- Contenedor Principal -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in-up">
+    
+    <!-- Header de la Vista -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+          Mis Proyectos
+          <span class="text-xs px-2.5 py-0.5 rounded-full bg-violet-100 text-violet-700 font-bold border border-violet-200">
+            {{ filteredProjects.length }}
+          </span>
+        </h1>
+        <p class="text-slate-500 text-sm mt-1">Crea, administra y supervisa todos tus espacios de trabajo.</p>
+      </div>
+
+      <button
+        (click)="openCreateModal()"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 text-white font-bold text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer"
+      >
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Nuevo Proyecto
+      </button>
+    </div>
+
+    <!-- Barra de Filtros y Búsqueda -->
+    <div class="glass-panel p-4 rounded-2xl border border-slate-200/80 flex flex-col md:flex-row justify-between items-center gap-4">
+      
+      <!-- Buscador en tiempo real -->
+      <div class="relative w-full md:w-96">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Buscar proyectos por nombre..."
+          class="w-full pl-10 pr-4 py-2 bg-white rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder:text-slate-400"
+        />
+      </div>
+
+      <!-- Filtro por Estado (Tabs) -->
+      <div class="flex items-center gap-1 p-1 bg-slate-100 rounded-xl w-full md:w-auto justify-center">
+        <button
+          (click)="statusFilter = 'all'"
+          class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200"
+          [ngClass]="statusFilter === 'all' ? 'bg-white text-violet-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+        >
+          Todos
+        </button>
+        <button
+          (click)="statusFilter = 'active'"
+          class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200"
+          [ngClass]="statusFilter === 'active' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+        >
+          En Progreso
+        </button>
+        <button
+          (click)="statusFilter = 'completed'"
+          class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200"
+          [ngClass]="statusFilter === 'completed' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+        >
+          Completados
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Loading Skeleton -->
+    <div *ngIf="projectsService.loading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let item of [1,2,3,4,5,6]" class="p-6 rounded-3xl bg-white border border-slate-200/80 animate-pulse space-y-4">
+        <div class="h-4 bg-slate-200 rounded-md w-1/3"></div>
+        <div class="h-6 bg-slate-200 rounded-md w-3/4"></div>
+        <div class="h-12 bg-slate-100 rounded-xl w-full"></div>
+        <div class="h-8 bg-slate-200 rounded-xl w-full"></div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!projectsService.loading() && filteredProjects.length === 0" class="py-20 text-center glass-panel rounded-3xl border border-slate-200/80 space-y-4">
+      <div class="w-16 h-16 rounded-3xl bg-violet-50 text-violet-600 flex items-center justify-center mx-auto shadow-sm">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-slate-800">No se encontraron proyectos</h3>
+        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+          {{ searchTerm ? 'No hay resultados que coincidan con "' + searchTerm + '"' : 'Comienza creando tu primer proyecto para organizar tus tareas.' }}
+        </p>
+      </div>
+      <button
+        *ngIf="!searchTerm"
+        (click)="openCreateModal()"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 text-white font-bold text-xs shadow-md shadow-violet-500/20 hover:bg-violet-700 transition-colors"
+      >
+        + Crear Proyecto
+      </button>
+    </div>
+
+    <!-- Projects Grid -->
+    <div *ngIf="!projectsService.loading() && filteredProjects.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <div
+        *ngFor="let project of filteredProjects"
+        class="glass-card p-6 rounded-3xl bg-white border border-slate-200/80 flex flex-col justify-between space-y-6 group hover:border-violet-300 relative"
+      >
+        <!-- Top Card Info -->
+        <div class="space-y-3">
+          
+          <div class="flex items-center justify-between">
+            <span
+              (click)="toggleStatus(project)"
+              title="Haz clic para alternar estado"
+              class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider cursor-pointer select-none transition-all hover:scale-105"
+              [ngClass]="{
+                'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100': project.status === 'active',
+                'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200': project.status === 'completed'
+              }"
+            >
+              {{ project.status === 'active' ? '● En Progreso' : '✓ Completado' }}
+            </span>
+
+            <!-- Botones de Acción Rápida (Editar / Eliminar) -->
+            <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+              <button
+                (click)="openEditModal(project)"
+                title="Editar Proyecto"
+                class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-700 transition-colors"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+
+              <button
+                (click)="openDeleteModal(project)"
+                title="Eliminar Proyecto"
+                class="p-1.5 hover:bg-rose-50 rounded-lg text-slate-400 hover:text-rose-600 transition-colors"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 group-hover:text-violet-600 transition-colors line-clamp-1">
+              {{ project.name }}
+            </h2>
+            <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+              {{ project.description || 'Sin descripción disponible para este proyecto.' }}
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Bottom Action / Link to Kanban -->
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-[11px] text-slate-400 font-medium">
+            {{ project.createdAt | date:'d MMM, y' }}
+          </span>
+
+          <a
+            [routerLink]="['/tasks', project._id]"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 text-white font-bold text-xs shadow-md shadow-violet-500/20 hover:bg-violet-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          >
+            Tablero Kanban →
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Modal: Crear Proyecto -->
+  <div *ngIf="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in-up">
+    <div class="glass-modal w-full max-w-md p-6 sm:p-8 rounded-3xl space-y-6 animate-spring-pop border border-slate-200/80">
+      
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl font-extrabold text-slate-900">Crear Nuevo Proyecto</h3>
+        <button (click)="closeCreateModal()" class="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Nombre del Proyecto *</label>
+          <input
+            type="text"
+            [(ngModel)]="newProjectName"
+            placeholder="Ej: Rediseño Ecommerce"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-sm"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Descripción</label>
+          <textarea
+            [(ngModel)]="newProjectDesc"
+            rows="3"
+            placeholder="Detalles sobre el proyecto..."
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-sm resize-none"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button (click)="closeCreateModal()" type="button" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold">
+          Cancelar
+        </button>
+        <button
+          (click)="crearProyecto()"
+          [disabled]="saving"
+          type="button"
+          class="px-5 py-2.5 rounded-xl bg-violet-600 text-white text-xs font-bold shadow-md shadow-violet-500/25 hover:bg-violet-700 disabled:opacity-50"
+        >
+          {{ saving ? 'Guardando...' : 'Crear Proyecto' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Editar Proyecto -->
+  <div *ngIf="showEditModal && editingProject" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in-up">
+    <div class="glass-modal w-full max-w-md p-6 sm:p-8 rounded-3xl space-y-6 animate-spring-pop border border-slate-200/80">
+      
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl font-extrabold text-slate-900">Editar Proyecto</h3>
+        <button (click)="closeEditModal()" class="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Nombre del Proyecto *</label>
+          <input
+            type="text"
+            [(ngModel)]="editingProject.name"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-sm"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Descripción</label>
+          <textarea
+            [(ngModel)]="editingProject.description"
+            rows="3"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-sm resize-none"
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Estado</label>
+          <select
+            [(ngModel)]="editingProject.status"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 text-sm bg-white"
+          >
+            <option value="active">En Progreso</option>
+            <option value="completed">Completado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button (click)="closeEditModal()" type="button" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold">
+          Cancelar
+        </button>
+        <button
+          (click)="guardarEdicion()"
+          [disabled]="saving"
+          type="button"
+          class="px-5 py-2.5 rounded-xl bg-violet-600 text-white text-xs font-bold shadow-md shadow-violet-500/25 hover:bg-violet-700 disabled:opacity-50"
+        >
+          {{ saving ? 'Guardando...' : 'Guardar Cambios' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Confirmar Eliminación -->
+  <div *ngIf="showDeleteModal && deletingProject" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in-up">
+    <div class="glass-modal w-full max-w-sm p-6 rounded-3xl space-y-5 animate-spring-pop border border-rose-200 text-center">
+      
+      <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+        <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-bold text-slate-900">¿Eliminar "{{ deletingProject.name }}"?</h3>
+        <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+          Esta acción no se puede deshacer. Se eliminarán permanentemente el proyecto y todas sus tareas asociadas.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-center gap-3 pt-2">
+        <button
+          (click)="closeDeleteModal()"
+          type="button"
+          class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="confirmarEliminacion()"
+          [disabled]="saving"
+          type="button"
+          class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-500/25 disabled:opacity-50"
+        >
+          {{ saving ? 'Eliminando...' : 'Sí, Eliminar' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
