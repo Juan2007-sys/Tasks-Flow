@@ -17,13 +17,15 @@ build/
 .env.local
 .env.*.local
 
-# IDE
+# IDE & Herramientas
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 .DS_Store
+.agent/
+.agents/
 
 # Logs
 logs/
